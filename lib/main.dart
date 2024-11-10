@@ -2,16 +2,20 @@ import 'package:azkar/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'Home/favorites page/favorites_page.dart';
 import 'Home/profile/profile.dart';
+import 'Home/ui/Azkar/search.dart';
 import 'Home/ui/Azkar/ui.dart';
-import 'Home/ui/Home_page.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ThemeProvider(),
-      child: const MyApp(),
-    ),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
+          ChangeNotifierProvider<FavoritesNotifier>(create: (_) => FavoritesNotifier()),
+        ],
+        child: MyApp(),
+      )
   );
 }
 
@@ -39,11 +43,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 1;
   bool theme = true;
-
-  final WidgetStateProperty<Icon?> thumbIcon =
-  WidgetStateProperty.resolveWith<Icon?>(
+  final WidgetStateProperty<Icon?> thumbIcon = WidgetStateProperty.resolveWith<Icon?>(
         (Set<WidgetState> states) {
       if (states.contains(WidgetState.selected)) {
         return const Icon(Icons.sunny);
@@ -51,13 +52,6 @@ class _MyHomePageState extends State<MyHomePage> {
       return const Icon(Icons.nightlight);
     },
   );
-
-  List<Widget> tabItems = [
-    AzkarDetailScreen(),
-    HomePage(),
-    HomePage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,6 +64,15 @@ class _MyHomePageState extends State<MyHomePage> {
         // ),
 
         actions: <Widget>[
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FavoritesPage()),
+              );
+            },
+            child: const Text('عرض المفضلة'),
+          ),
           IconButton(
             onPressed: () {
               Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
@@ -98,9 +101,11 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons. search,color: Theme.of(context).colorScheme.secondary,),
             tooltip: 'Open shopping cart',
             onPressed: () {
-              // handle the press
+              Navigator.push(context, MaterialPageRoute(builder: (_)=>AzkarSearchScreen()));
             },
+
           ),
+
 SizedBox(width: 20,)
           // IconButton(
           //   icon: Icon(Icons. settings,color: Theme.of(context).colorScheme.secondary,),

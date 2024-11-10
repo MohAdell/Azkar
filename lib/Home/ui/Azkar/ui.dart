@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../Azkar_model/azkar_model.dart';
 import '../../../theme/theme_provider.dart';
+import '../../favorites page/favorites_page.dart';
 
 
 class AzkarDetailScreen extends StatelessWidget {
@@ -28,15 +31,20 @@ class AzkarDetailScreen extends StatelessWidget {
           // appBar: AppBar(
           //   title: Text('أذكار'),
           // ),
-          body: ListView.builder(
-
+          body: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // عدد العناصر في كل صف
+              mainAxisSpacing: 1, // المسافة بين الصفوف
+              crossAxisSpacing: 10, // المسافة بين الأعمدة
+              childAspectRatio: 1.3, // نسبة العرض إلى الارتفاع لكل عنصر
+            ),
             addAutomaticKeepAlives: true,
             itemCount: uniqueAzkarList.length,
             itemBuilder: (context, index) {
               return Column(
-                spacing: 13,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                // spacing: 13,
+                // mainAxisAlignment: MainAxisAlignment.center,
+                // crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   InkWell(
               onTap: () {
@@ -69,7 +77,6 @@ color: Theme.of(context).colorScheme.onPrimary,
                         ),                      ),
                     ),
                   ),
-                  SizedBox(height: 5,),
 
                   // ListTile(
                   //   style: ListTileStyle.drawer,
@@ -109,10 +116,90 @@ class AzkarDetailScreenCard extends StatefulWidget {
 
 class _AzkarDetailScreenCardState extends State<AzkarDetailScreenCard> {
   double _fontSize = 18.0;
+  int _currentPage = 0;
+  final _pageController = PageController();
+  List<AzkarModel> favorites = [];
+  // Define isFavorite for each Azkar
+  List<bool> isFavoriteList = List.filled(AzkarModel.azkarList.length, false);
+
+  Future<void> _saveFontSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('fontSize', _fontSize);
+  }
+
+  Future<void> _loadFontSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedFontSize = prefs.getDouble('fontSize');
+    if (savedFontSize != null) {
+      setState(() {
+        _fontSize = savedFontSize;
+      });
+    }
+  }
+  // Define _toggleFavorite function
+  void _toggleFavorite(int index) {
+    final favoritesNotifier = Provider.of<FavoritesNotifier>(context, listen: false);
+    final azkar = widget.azkarList[index];
+    if (isFavoriteList[index]) {
+      favoritesNotifier.addFavorite(azkar);
+    } else {
+      favoritesNotifier.removeFavorite(azkar);
+    }
+    setState(() {
+      isFavoriteList[index] = !isFavoriteList[index];
+      if (isFavoriteList[index]) {
+        favoritesNotifier.addFavorite(azkar);
+      } else {
+        favoritesNotifier.removeFavorite(azkar);
+      }
+    });
+  }
+  void _loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favoritesJson = prefs.getStringList('favorites');
+    final isFavoriteListJson = prefs.getString('isFavoriteList');
+
+    if (favoritesJson != null) {
+      final loadedFavorites = favoritesJson.map((json) => AzkarModel.fromJson(jsonDecode(json))).toList();
+      // Update isFavorite status in widget.azkarList
+      for (var loadedAzkar in loadedFavorites) {
+        final index = widget.azkarList.indexWhere((azkar) => azkar.azkarAR == loadedAzkar.azkarAR); // Assuming azkarAR is unique
+        if (index != -1) {
+          widget.azkarList[index].isFavorite = true;
+        }
+      }
+      setState(() {}); // Trigger UI update
+    }
+  }
+  void _saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final favoritesJson = widget.azkarList.where((azkar) => azkar.isFavorite!).map((azkar) => jsonEncode(azkar.toJson())).toList();
+    await prefs.setStringList('favorites', favoritesJson);
+    await prefs.setString('isFavoriteList', jsonEncode(isFavoriteList));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFontSize(); // Load font size on initialization
+    _pageController.addListener(() {
+      setState(() {
+        _currentPage = _pageController.page!.toInt();
+      });
+    });
+    _loadFavorites(); // Load favorites and isFavoriteList
+
+  }
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
   @override
   void setState(VoidCallback fn) {
     _fontSize = _fontSize.clamp(12.0, 40.0);
     super.setState(fn);
+    _saveFontSize();
   }
   @override
   Widget build(BuildContext context) {
@@ -121,9 +208,7 @@ class _AzkarDetailScreenCardState extends State<AzkarDetailScreenCard> {
         theme: Provider.of<ThemeProvider>(context).themeData,
         home: Directionality( // add this
         textDirection: TextDirection.rtl, // set this property
-
         child: Scaffold(
-
         appBar: AppBar(
 leading:IconButton(
   icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.secondary),
@@ -144,14 +229,28 @@ leading:IconButton(
               },
               icon: Icon(Icons.dark_mode,color: Theme.of(context).colorScheme.secondary,),
             ),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                setState(() {
-                  _fontSize++;
-                });
-              },
+            Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    setState(() {
+                      _fontSize++;
+                    });
+                  },
+                ),
+                Text(
+                  _fontSize.toInt().toString(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.secondary, // Adjust color as needed
+                  ),
+                ),
+              ],
             ),
+
             IconButton(
               icon: Icon(Icons.remove),
               onPressed: () {
@@ -160,9 +259,19 @@ leading:IconButton(
                 });
               },
             ),
+            SizedBox(width: 10,),
+            SizedBox(width: 50,
+              child: Text(
+                '${_currentPage + 1} / ${widget.azkarList.length}',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ) ,),
           ],
         ),
         body: PageView.builder(
+          controller: _pageController,
           scrollDirection: Axis.horizontal,
           itemCount: widget.azkarList.length,
           itemBuilder: (context, index) {
@@ -183,11 +292,24 @@ leading:IconButton(
                   child: Column(
                     mainAxisSize: MainAxisSize.min, // Constrain the Column
                     children: [
-                  Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('${widget.azkarList[index].azkarCategorys} - ${index + 1}',
-                    style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.secondary),),
-                                ),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          isFavoriteList[index] ? Icons.favorite : Icons.favorite_border,
+                          color: isFavoriteList[index] ? Colors.red : null,
+                        ),
+                        onPressed: () {
+                          _toggleFavorite(index);
+                        },
+                      ),
+                      Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text('${widget.azkarList[index].azkarCategorys} - ${index + 1}',
+                        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.secondary),),
+                                    ),
+                    ],
+                  ),
                               Padding(
                               padding:EdgeInsets.symmetric(horizontal:10.0),
                               child:Container(
@@ -205,11 +327,11 @@ leading:IconButton(
                   : Image.asset('assets/basmala/بسم الله الرحمان الرحيم.png',height: 70,width: 350,fit: BoxFit.cover,)
                               },
                               Text(widget.azkarList[index].azkarAR,style: TextStyle(fontSize: _fontSize,fontWeight: FontWeight.bold,color: Theme.of(context).colorScheme.secondary),),
-                              SizedBox(height: 5,),
+                              SizedBox(height: 20,),
                               Text(widget.azkarList[index].azkarEN,style: TextStyle(fontSize: _fontSize,fontWeight: FontWeight.w400,),),
-                              SizedBox(height: 5,),
+                              SizedBox(height: 20,),
                               Text(widget.azkarList[index].azkarFranco,style: TextStyle(fontSize: _fontSize,fontWeight: FontWeight.w400,),),
-                              SizedBox(height: 5,),
+                              SizedBox(height: 20,),
                               Text(widget.azkarList[index].azkarFrom,style: TextStyle(fontSize: _fontSize,fontWeight: FontWeight.w400,color: Theme.of(context).colorScheme.secondary),),
                         // if (azkarList[index].TekrarQuraan != null) ...[
                         //   SizedBox(height: 5),
