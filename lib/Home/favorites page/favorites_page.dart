@@ -7,6 +7,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Azkar_model/azkar_model.dart';
 import '../../theme/theme_provider.dart';
+class RunFavoritesPage extends StatelessWidget {
+  const RunFavoritesPage({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Directionality( // add this
+        textDirection: TextDirection.rtl, // set this property
+        child: FavoritesPage(),
+      ),
+      theme: Provider.of<ThemeProvider>(context).themeData,
+    );
+  }
+}
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({Key? key}) : super(key: key);
@@ -47,20 +63,15 @@ class _FavoritesPageState extends State<FavoritesPage> {
     List<AzkarModel> getRelatedAzkar(AzkarModel currentAzkar) {
       return AzkarModel.azkarList.where((azkar) => azkar.azkarCategorys == currentAzkar.azkarCategorys && azkar != currentAzkar).toList();
     }
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: Provider.of<ThemeProvider>(context).themeData,
-      home: Directionality( // add this
-        textDirection: TextDirection.rtl, // set this property
-        child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
-          leading: ModalRoute.of(context)!.canPop
-              ? IconButton(
-              onPressed: () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios)
-          )
-              : null,
-          title: const Text('المفضلة'),
+          leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back_ios,color: Theme.of(context).colorScheme.onPrimary,)
+          ),
+          title: Text('المفضلة',style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),),
         ),
         body: ListView.builder(
           itemCount: favorites.length,
@@ -71,7 +82,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             return Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Theme.of(context).colorScheme.onPrimary,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
@@ -85,47 +96,50 @@ class _FavoritesPageState extends State<FavoritesPage> {
               child: Column( // Wrap ListTile with a Column
                 children: [
                   ListTile(
-                    title: Text(azkar.azkarAR),
+                    title: Text(azkar.azkarAR,style: TextStyle(fontSize: 18),),
                     // ... display other details ...
-                    trailing: Row( // Wrap trailing widgets in a Row
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            setState(() {
-                              favorites.removeAt(index);
-                              _saveFavorites();
-                            });
-                          },
-                        ),
-                        IconButton( // Add "Read More" button
-                          icon: const Icon(Icons.arrow_drop_down),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RelatedAzkarPage(currentAzkar: azkar),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
+                  ),
+                  Row( // Wrap trailing widgets in a Row
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          setState(() {
+                            favorites.removeAt(index);
+                            _saveFavorites();
+                          });
+                        },
+                      ),
+                      IconButton( // Add "Read More" button
+                        icon: const Icon(Icons.arrow_drop_down),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RelatedAzkarPage(currentAzkar: azkar),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
             );
           },
         ),
-      ),
-        ),
     );
   }
 }
 class FavoritesNotifier extends ValueNotifier<List<AzkarModel>> {
   FavoritesNotifier() : super([]);
-
+  var isFavorite = false;
+  // To update values and notify listeners
+  void updateFavorite(bool value) {
+    isFavorite = value;
+    notifyListeners();
+  }
   void addFavorite(AzkarModel azkar) {
     value = [...value, azkar];
     _saveFavorites();
@@ -151,6 +165,7 @@ class FavoritesNotifier extends ValueNotifier<List<AzkarModel>> {
     }
   }
 }
+
 class RelatedAzkarPage extends StatefulWidget {
   final AzkarModel currentAzkar;
 
@@ -173,8 +188,27 @@ class _RelatedAzkarPageState extends State<RelatedAzkarPage> {
         itemCount: relatedAzkar.length,
         itemBuilder: (context, index) {
           final azkar = relatedAzkar[index];
-          return ListTile(
-            title: Text(azkar.azkarAR),
+          return Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onPrimary,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column( // Wrap ListTile with a Column
+              children: [
+            ListTile(
+            title: Text(azkar.azkarAR,style: TextStyle(fontSize: 18),),
+          )
+          ],
+          ),
           );
         },
       ),

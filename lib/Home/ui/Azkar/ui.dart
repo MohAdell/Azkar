@@ -32,11 +32,11 @@ class AzkarDetailScreen extends StatelessWidget {
           //   title: Text('أذكار'),
           // ),
           body: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // عدد العناصر في كل صف
-              mainAxisSpacing: 1, // المسافة بين الصفوف
-              crossAxisSpacing: 10, // المسافة بين الأعمدة
-              childAspectRatio: 1.3, // نسبة العرض إلى الارتفاع لكل عنصر
+            gridDelegate:  SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: size.width > 600 ? 3 : 2,
+              mainAxisSpacing: 1,
+              crossAxisSpacing: 10,
+              childAspectRatio: size.width > 600 ? 1.5 : 1.3,
             ),
             addAutomaticKeepAlives: true,
             itemCount: uniqueAzkarList.length,
@@ -60,7 +60,7 @@ class AzkarDetailScreen extends StatelessWidget {
             );},
                     child: Container(
                       width: 400,
-                      height: 150,
+                      height:  size.width > 600 ? 180 : 150,
                       decoration: BoxDecoration(
 color: Theme.of(context).colorScheme.onPrimary,
                         image: DecorationImage(image: AssetImage(uniqueAzkarList[index].imageCategory),fit: BoxFit.cover,matchTextDirection: true ),
@@ -73,27 +73,10 @@ color: Theme.of(context).colorScheme.onPrimary,
                           borderRadius: BorderRadius.circular(25),
 
                         ),
-                        child: Text(uniqueAzkarList[index].azkarCategorys,textAlign: TextAlign.start,style: TextStyle(color: Colors.black,fontSize: 26,fontWeight: FontWeight.bold),
+                        child: Text(uniqueAzkarList[index].azkarCategorys,textAlign: TextAlign.start,style: TextStyle(color: Colors.black,fontSize: size.width > 600 ? 28 : 24,fontWeight: FontWeight.bold),
                         ),                      ),
                     ),
                   ),
-
-                  // ListTile(
-                  //   style: ListTileStyle.drawer,
-                  //   title: Text(uniqueAzkarList[index].azkarCategorys),
-                  //   onTap: () {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) => AzkarDetailScreenCard(
-                  //           category: uniqueAzkarList[index].azkarCategorys,
-                  //           azkarList: AzkarModel.azkarList.where((azkar) =>
-                  //           azkar.azkarCategorys == uniqueAzkarList[index].azkarCategorys).toList(),
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
                 ],
               );
             },
@@ -203,6 +186,7 @@ class _AzkarDetailScreenCardState extends State<AzkarDetailScreenCard> {
   }
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: Provider.of<ThemeProvider>(context).themeData,
@@ -314,7 +298,7 @@ leading:IconButton(
                               padding:EdgeInsets.symmetric(horizontal:10.0),
                               child:Container(
                               height:1.0,
-                              width:200.0,
+                              width:size.width * 0.8,
                               color:Theme.of(context).colorScheme.scrim,),),
                         // if (azkarList[index].basmalaQuraan != null ) ...[
                         //   SizedBox(height: 5),
@@ -342,7 +326,7 @@ leading:IconButton(
                               padding:EdgeInsets.symmetric(horizontal:10.0),
                               child:Container(
                               height:1.0,
-                              width:400.0,
+                              width:size.width * 0.8,
                               color:Theme.of(context).colorScheme.scrim,),),
                         if (widget.azkarList[index].TekrarQuraan != null) ...{
                           Theme.of(context).brightness == Brightness.dark

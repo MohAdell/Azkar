@@ -2,6 +2,8 @@ import 'package:azkar/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'Azkar_model/azkar_model.dart';
+import 'Home/Add Azkar/add_azkar.dart';
 import 'Home/favorites page/favorites_page.dart';
 import 'Home/profile/profile.dart';
 import 'Home/ui/Azkar/search.dart';
@@ -11,6 +13,18 @@ void main() {
   runApp(
       MultiProvider(
         providers: [
+      ChangeNotifierProvider<AzkarModel>(
+      create: (context) => AzkarModel(
+    '', // Put your default values here for the first AzkarModel
+    '',
+    '',
+    '',
+    '',
+    imageCategory: '',
+    TekrarQuraan: '',
+    basmalaQuraan: true,
+    isFavorite: false,
+  )),
           ChangeNotifierProvider<ThemeProvider>(create: (_) => ThemeProvider()),
           ChangeNotifierProvider<FavoritesNotifier>(create: (_) => FavoritesNotifier()),
         ],
@@ -65,13 +79,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
         actions: <Widget>[
           ElevatedButton(
+            style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.white10)
+            ),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const FavoritesPage()),
+                MaterialPageRoute(builder: (context) => AzkarPage()),
               );
             },
-            child: const Text('عرض المفضلة'),
+            child: const Text('إضافة ذكر',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.white),),
+          ),
+          ElevatedButton(
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(Colors.white10)
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => RunFavoritesPage()),
+              );
+            },
+            child: const Text('عرض المفضلة',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.white),),
           ),
           IconButton(
             onPressed: () {

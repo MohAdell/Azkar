@@ -24,8 +24,9 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
+    double width = MediaQuery.of(context).size.width;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 50),
+      padding:  EdgeInsets.symmetric(horizontal: width * 0.05, vertical: 50),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [    Color(0xff074b7b),
@@ -93,7 +94,7 @@ class CustomDrawer extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(25),
             ),
-            width: 250,
+            width: width * 0.8,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,

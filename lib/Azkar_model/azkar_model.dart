@@ -1,4 +1,6 @@
-class AzkarModel {
+import 'package:flutter/cupertino.dart';
+
+class AzkarModel extends ChangeNotifier {
   String azkarCategorys;
   bool? basmalaQuraan;
   String azkarAR;
@@ -495,4 +497,82 @@ AzkarModel(isFavorite: null,'في أوقات الشدة والقلق', 'اللّ
       isFavorite: json['isFavorite'] ?? false,
     );
   }
+  factory AzkarModel.toMap(Map<String, dynamic> map) {
+    return AzkarModel(
+      map['azkarCategorys'],
+      map['azkarAR'],
+      map['azkarFranco'],
+      map['azkarEN'],
+      map['azkarFrom'],
+      imageCategory: map['imageCategory'],
+      TekrarQuraan: map['TekrarQuraan'],
+      basmalaQuraan: map['basmalaQuraan'],
+      isFavorite: map['isFavorite'],
+    );
+  }
+  Map<String, dynamic> fromMap() {
+    return {
+      'azkarCategorys': azkarCategorys,
+      'basmalaQuraan': basmalaQuraan,
+      'azkarAR': azkarAR,
+      'azkarFranco': azkarFranco,
+      'azkarEN': azkarEN,
+      'azkarFrom': azkarFrom,
+      'TekrarQuraan': TekrarQuraan,
+      'imageCategory': imageCategory,
+      'isFavorite': isFavorite,
+    };
+  }
+  List<AzkarModel> addAzkarList = [];
+  // دالة لتحميل الأذكار المخزنة في الذاكرة
+  List<AzkarModel> get azkarListtt => addAzkarList;
+
+  // دالة لتحويل Map إلى AzkarModel
+  factory AzkarModel.fromMap(Map<String, dynamic> map) {
+    return AzkarModel(
+      map['azkarCategorys'],
+      map['azkarAR'],
+      map['azkarFranco'],
+      map['azkarEN'],
+      map['azkarFrom'],
+      imageCategory: map['imageCategory'],
+      TekrarQuraan: map['TekrarQuraan'],
+      basmalaQuraan: map['basmalaQuraan'],
+      isFavorite: map['isFavorite'],
+    );
+  }
+
+  // لتحويل الـ AzkarModel إلى Map (للتخزين)
+  Map<String, dynamic> toMap() {
+    return {
+      'azkarCategorys': azkarCategorys,
+      'basmalaQuraan': basmalaQuraan,
+      'azkarAR': azkarAR,
+      'azkarFranco': azkarFranco,
+      'azkarEN': azkarEN,
+      'azkarFrom': azkarFrom,
+      'TekrarQuraan': TekrarQuraan,
+      'imageCategory': imageCategory,
+      'isFavorite': isFavorite,
+    };
+  }
+
+  // دالة لإضافة ذكر إلى القائمة
+  void addAzkar(AzkarModel azkar) {
+    addAzkarList.add(azkar);
+    notifyListeners();
+  }
+
+  // دالة لحذف ذكر من القائمة
+  void removeAzkar(AzkarModel azkar) {
+    addAzkarList.remove(azkar);
+    notifyListeners();
+  }
+
+  // دالة لتحديث حالة المفضلة
+  void updateFavorite(bool isFavorite) {
+    this.isFavorite = isFavorite;
+    notifyListeners();
+  }
+
 }
