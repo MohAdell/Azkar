@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 
 import 'Azkar_model/azkar_model.dart';
 import 'Home/Add Azkar/add_azkar.dart';
+import 'Home/Quran/Provider/AudioPlayerProvider.dart';
+import 'Home/Quran/QuranPage.dart';
 import 'Home/favorites page/favorites_page.dart';
 import 'Home/profile/profile.dart';
 import 'Home/ui/Azkar/search.dart';
@@ -13,6 +15,7 @@ void main() {
   runApp(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider(create: (context) => AudioPlayerProvider(),),
       ChangeNotifierProvider<AzkarModel>(
       create: (context) => AzkarModel(
     '', // Put your default values here for the first AzkarModel
@@ -85,11 +88,23 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => AzkarPage()),
+                MaterialPageRoute(builder: (context) => QuranPage()),
               );
             },
-            child: const Text('إضافة ذكر',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.white),),
+            child: const Text('الشيوخ',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.white),),
           ),
+          // ElevatedButton(
+          //   style: ButtonStyle(
+          //       backgroundColor: MaterialStateProperty.all(Colors.white10)
+          //   ),
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => AzkarPage()),
+          //     );
+          //   },
+          //   child: const Text('إضافة ذكر',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 15,color: Colors.white),),
+          // ),
           ElevatedButton(
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all(Colors.white10)
